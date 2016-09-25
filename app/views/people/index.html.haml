@@ -1,0 +1,22 @@
+%h1 Listing people
+
+%table
+  %thead
+    %tr
+      %th Name
+      %th
+      %th.actions
+
+  %tbody
+    - @people.each do |person|
+      %tr
+        %td= person.display_name
+        %td
+        %td
+          = link_to 'Show', person
+          = link_to 'Edit', edit_person_path(person)
+          = link_to 'Destroy', person, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+%br
+
+= link_to 'New Person', new_person_path
