@@ -5,6 +5,10 @@ gem 'rails', '~> 5.0'
 gem 'pg'
 gem 'haml'
 
+gem 'bootstrap'
+gem 'sprockets-rails',  '>= 2.3.2' # required for Bootstrap 4
+gem 'bootstrap_form'
+
 # Rails defaults
 gem 'coffee-rails', '~> 4.2' # Use CoffeeScript for .coffee assets and views
 gem 'jbuilder', '~> 2.0' # Build JSON APIs with ease.
@@ -34,4 +38,8 @@ group :test do
   gem 'factory_girl_rails', '~> 4.0'
   gem 'rails-controller-testing'
   gem 'rspec-rails'
+end
+
+source 'https://rails-assets.org' do
+  gem 'rails-assets-tether', '>= 1.1.0' # required for tooltips/popovers in Bootstrap 4
 end
