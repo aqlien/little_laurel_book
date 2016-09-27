@@ -6,7 +6,11 @@
         - @person.errors.full_messages.each do |msg|
           %li= msg
 
-  = render 'fields', form: f
+  First:
+  = f.text_field :first_name
+
+  Last:
+  = f.text_field :last_name
 
   .actions
     = f.submit 'Save'
