@@ -1,0 +1,21 @@
+= bootstrap_form_for @entry_form, {layout: :inline, label_errors: false, inline_errors: true} do |f|
+  = f.alert_message "Please fix the #{pluralize(@entry_form.errors.count, "error")} below:", error_summary: false
+
+  = f.form_group do
+    = f.text_field :first_name, label: "Name", placeholder: 'First'
+    = f.text_field :middle_name, hide_label: true, placeholder: 'Middle'
+    = f.text_field :last_name, hide_label: true, placeholder: 'Last'
+  %br
+  %br
+  = f.form_group do
+    = f.select :salutation, options_for_select(salutation_array)
+    = f.text_field :suffix, help: "For example, 'Jr.' or 'III'"
+  %br
+  %br
+  = f.form_group do
+    = f.date_select :birthday
+  %br
+  %br
+  = f.form_group do
+    .actions
+      = f.submit 'Save'

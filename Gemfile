@@ -9,6 +9,8 @@ gem 'bootstrap'
 gem 'sprockets-rails',  '>= 2.3.2' # required for Bootstrap 4
 gem 'bootstrap_form'
 
+gem 'virtus'
+
 # Rails defaults
 gem 'coffee-rails', '~> 4.2' # Use CoffeeScript for .coffee assets and views
 gem 'jbuilder', '~> 2.0' # Build JSON APIs with ease.
