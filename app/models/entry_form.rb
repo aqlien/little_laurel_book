@@ -1,31 +1,13 @@
-class EntryForm
-  include ActiveModel::Model
-  include Virtus
+class EntryForm < Reform::Form
+  include Composition
 
-  attribute :first_name, String
-  attribute :middle_name, String
-  attribute :last_name, String
-  attribute :suffix, String
-  attribute :salutation, String
-  attribute :birthday, Date
+  model :person
 
-  validates :first_name, {presence: true}
+  property :first_name,   on: :person
+  property :middle_name,  on: :person
+  property :last_name,    on: :person
+  property :suffix,       on: :person
+  property :salutation,   on: :person
+  property :birthday,     on: :person
 
-  def save
-    if valid?
-      persist!
-      true
-    else
-      false
-    end
-  end
-
-private
-  def persist!
-    person = Person.create(person_attributes)
-  end
-
-  def person_attributes
-    { first_name: first_name, middle_name: middle_name, last_name: last_name, suffix: suffix, salutation: salutation, birthday: birthday }
-  end
 end

@@ -9,6 +9,8 @@ gem 'bootstrap'
 gem 'sprockets-rails',  '>= 2.3.2' # required for Bootstrap 4
 gem 'bootstrap_form'
 
+gem 'reform'
+gem 'reform-rails' # required to specify validations for reform
 gem 'virtus'
 
 # Rails defaults

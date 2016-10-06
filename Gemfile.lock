@@ -65,9 +65,15 @@ GEM
     coffee-script-source (1.10.0)
     concurrent-ruby (1.0.2)
     debug_inspector (0.0.2)
+    declarative (0.0.8)
+      uber (>= 0.0.15)
     descendants_tracker (0.0.4)
       thread_safe (~> 0.3, >= 0.3.1)
     diff-lcs (1.2.5)
+    disposable (0.3.2)
+      declarative (>= 0.0.8, < 1.0.0)
+      representable (>= 2.4.0, <= 3.1.0)
+      uber
     equalizer (0.0.11)
     erubis (2.7.0)
     execjs (2.7.0)
@@ -165,6 +171,16 @@ GEM
     rake (11.3.0)
     rdoc (4.2.2)
       json (~> 1.4)
+    reform (2.2.1)
+      disposable (>= 0.3.0, < 0.4.0)
+      representable (>= 2.4.0, < 3.1.0)
+      uber (~> 0.0.11)
+    reform-rails (0.1.7)
+      activemodel (>= 3.2)
+      reform (>= 2.2.0)
+    representable (3.0.0)
+      declarative (~> 0.0.5)
+      uber (~> 0.0.15)
     rspec-core (3.5.3)
       rspec-support (~> 3.5.0)
     rspec-expectations (3.5.0)
@@ -212,6 +228,7 @@ GEM
     turbolinks-source (5.0.0)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
+    uber (0.0.15)
     uglifier (3.0.2)
       execjs (>= 0.3.0, < 3)
     virtus (1.0.5)
@@ -247,6 +264,8 @@ DEPENDENCIES
   rails-assets-tether (>= 1.1.0)!
   rails-controller-testing
   rails_12factor
+  reform
+  reform-rails
   rspec-rails
   sass-rails (~> 5.0)
   sdoc (~> 0.4.0)
