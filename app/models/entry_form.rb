@@ -10,4 +10,6 @@ class EntryForm < Reform::Form
   property :salutation,   on: :person
   property :birthday,     on: :person
 
+  validates :first_name, presence: true
+
 end

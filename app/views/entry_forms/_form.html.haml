@@ -1,21 +1,26 @@
-= bootstrap_form_for @entry_form, {layout: :inline, label_errors: false, inline_errors: true} do |f|
-  = f.alert_message "Please fix the #{pluralize(@entry_form.errors.count, "error")} below:", error_summary: false
+= bootstrap_form_for @entry_form, {layout: :inline, label_errors: false, inline_errors: false} do |f|
+  .row
+    = f.alert_message "Please fix the #{pluralize(@entry_form.errors.count, "error")} below:", error_summary: true
+  .row
+    .col-9-md
+      .panel.panel-default
+        .panel-heading
+          %h4.panel-title Name
+        .panel-body
+          = f.form_group do
+            = f.text_field :first_name, hide_label: true, placeholder: 'First'
+            = f.text_field :middle_name, hide_label: true, placeholder: 'Middle'
+            = f.text_field :last_name, hide_label: true, placeholder: 'Last'
+    .col-3-md
+  .row
+    .col-6-md
+      = f.select :salutation, options_for_select(salutation_array)
+      = f.text_field :suffix, help: "For example, 'Jr.' or 'III'"
+    .col-6-md
+      = f.date_select :birthday
 
-  = f.form_group do
-    = f.text_field :first_name, label: "Name", placeholder: 'First'
-    = f.text_field :middle_name, hide_label: true, placeholder: 'Middle'
-    = f.text_field :last_name, hide_label: true, placeholder: 'Last'
-  %br
-  %br
-  = f.form_group do
-    = f.select :salutation, options_for_select(salutation_array)
-    = f.text_field :suffix, help: "For example, 'Jr.' or 'III'"
-  %br
-  %br
-  = f.form_group do
-    = f.date_select :birthday
-  %br
-  %br
-  = f.form_group do
-    .actions
-      = f.submit 'Save'
+
+  .row
+    = f.form_group do
+      .actions
+        = f.submit 'Save'

@@ -11,7 +11,6 @@ gem 'bootstrap_form'
 
 gem 'reform'
 gem 'reform-rails' # required to specify validations for reform
-gem 'virtus'
 
 # Rails defaults
 gem 'coffee-rails', '~> 4.2' # Use CoffeeScript for .coffee assets and views
