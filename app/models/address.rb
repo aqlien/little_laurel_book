@@ -1,5 +1,8 @@
 class Address < ApplicationRecord
 
+  has_many :homes
+  has_many :people, through: :homes
+
   validates :street_1, {presence: true}
 
   def full(split_street = true)
