@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161007215453) do
+ActiveRecord::Schema.define(version: 20161007220459) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -43,6 +43,17 @@ ActiveRecord::Schema.define(version: 20161007215453) do
     t.date     "birthday"
     t.datetime "created_at",  null: false
     t.datetime "updated_at",  null: false
+  end
+
+  create_table "phone_numbers", force: :cascade do |t|
+    t.string   "callable_type"
+    t.integer  "callable_id"
+    t.string   "number"
+    t.string   "phone"
+    t.boolean  "primary"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+    t.index ["callable_type", "callable_id"], name: "index_phone_numbers_on_callable_type_and_callable_id", using: :btree
   end
 
 end

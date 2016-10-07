@@ -2,6 +2,7 @@ class Address < ApplicationRecord
 
   has_many :homes
   has_many :people, through: :homes
+  has_many :phone_numbers, as: :callable
 
   validates :street_1, {presence: true}
 
