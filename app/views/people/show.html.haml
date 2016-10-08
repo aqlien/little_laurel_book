@@ -1,6 +1,8 @@
-%p#notice= notice
 
-
-= link_to 'Edit', edit_person_path(@person)
-\|
-= link_to 'Back', people_path
+%h4= @person.display_name
+- @person.addresses.each do |address|
+  %p
+    = address.full
+- @person.phone_numbers.each do |phone_number|
+  = phone_icon(phone_number.phone)
+  = phone_number.number
