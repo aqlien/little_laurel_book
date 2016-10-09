@@ -1,6 +1,5 @@
 source 'https://rubygems.org'
 
-
 gem 'rails', '~> 5.0'
 gem 'pg'
 gem 'haml'
@@ -8,6 +7,7 @@ gem 'haml'
 gem 'bootstrap'
 gem 'sprockets-rails',  '>= 2.3.2' # required for Bootstrap 4
 gem 'bootstrap_form'
+gem 'font-awesome-rails' # get more icons
 
 gem 'reform'
 gem 'reform-rails' # required to specify validations for reform
@@ -44,5 +44,6 @@ group :test do
 end
 
 source 'https://rails-assets.org' do
+  gem 'rails-assets-bootstrap'
   gem 'rails-assets-tether', '>= 1.1.0' # required for tooltips/popovers in Bootstrap 4
 end
