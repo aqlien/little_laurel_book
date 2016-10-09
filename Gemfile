@@ -7,6 +7,7 @@ gem 'haml'
 gem 'bootstrap'
 gem 'sprockets-rails',  '>= 2.3.2' # required for Bootstrap 4
 gem 'bootstrap_form'
+gem 'nested_form'
 gem 'font-awesome-rails' # get more icons
 
 gem 'reform'

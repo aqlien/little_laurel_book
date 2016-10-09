@@ -1,21 +1,29 @@
-= bootstrap_form_for @person, {layout: :inline, label_errors: false, inline_errors: true} do |f|
+= bootstrap_nested_form_for @person, {layout: :inline, label_errors: false, inline_errors: true} do |f|
   = f.alert_message "Please fix the #{pluralize(@person.errors.count, "error")} below:", error_summary: false
 
-  = f.form_group do
-    = f.text_field :first_name, label: "Name", placeholder: 'First'
-    = f.text_field :middle_name, hide_label: true, placeholder: 'Middle'
-    = f.text_field :last_name, hide_label: true, placeholder: 'Last'
-  %br
-  %br
-  = f.form_group do
-    = f.select :salutation, options_for_select(salutation_array)
-    = f.text_field :suffix, help: "For example, 'Jr.' or 'III'"
-  %br
-  %br
-  = f.form_group do
-    = f.date_select :birthday
-  %br
-  %br
-  = f.form_group do
-    .actions
-      = f.submit 'Save'
+  .row
+    .col-md-9
+      .panel.panel-default
+        .panel.panel-heading Name
+        .panel-panel-body
+          = f.form_group do
+            = f.text_field :first_name, hide_label: true, placeholder: 'First'
+            = f.text_field :middle_name, hide_label: true, placeholder: 'Middle'
+            = f.text_field :last_name, hide_label: true, placeholder: 'Last'
+      .col-md-3
+  .row
+    .col-md-6
+      .panel.panel-default
+        .panel.panel-heading Name +
+        .panel-panel-body
+          = f.select :salutation, options_for_select(salutation_array), hide_label: true
+          = f.text_field :suffix, help: "For example, 'Jr.' or 'III'", hide_label: true
+    .col-md-6
+      .panel.panel-default
+        .panel.panel-heading Birthday
+        .panel-panel-body
+          = f.date_select :birthday, hide_label: true
+  .row
+    = f.form_group do
+      .actions
+        = f.submit 'Save'
