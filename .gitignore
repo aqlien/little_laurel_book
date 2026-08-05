@@ -1,0 +1,4 @@
+# Ignore built assets
+/node_modules
+# Ignore support files
+package-lock.json

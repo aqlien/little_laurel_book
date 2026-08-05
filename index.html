@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Address Book</title>
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <h1>Address Book</h1>
+      <p class="subtitle">A simple, easy-to-use contact list.</p>
+    </header>
+
+    <div class="toolbar">
+      <input id="searchInput" type="text" placeholder="Search contacts" />
+      <button id="addBtn" class="primary">Add Contact</button>
+    </div>
+
+    <div class="content">
+      <section class="panel">
+        <h2>Contacts</h2>
+        <div id="contactList" class="contact-list"></div>
+      </section>
+
+      <section class="panel">
+        <h2 id="formTitle">Add Contact</h2>
+        <form id="contactForm" class="form">
+          <div class="field">
+            <label for="nameInput">Name</label>
+            <input id="nameInput" required />
+          </div>
+
+          <div class="field">
+            <label for="phoneInput">Phone</label>
+            <input id="phoneInput" required />
+          </div>
+
+          <div class="field">
+            <label for="emailInput">Email</label>
+            <input id="emailInput" type="email" />
+          </div>
+
+          <div class="field">
+            <label for="notesInput">Notes</label>
+            <textarea id="notesInput"></textarea>
+          </div>
+
+          <div class="actions">
+            <button type="submit" class="primary">Save</button>
+            <button type="button" id="cancelBtn" class="secondary">Cancel</button>
+          </div>
+        </form>
+      </section>
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
