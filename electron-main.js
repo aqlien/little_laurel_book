@@ -1,5 +1,43 @@
 const { app, BrowserWindow, Menu, nativeImage } = require('electron');
+const { autoUpdater } = require('electron-updater');
 const path = require('path');
+
+function getUpdateFeedUrl() {
+  const argument = process.argv.find((value) => value.startsWith('--update-host='));
+  const configuredUrl = argument ? argument.slice('--update-host='.length) : process.env.ADDRESS_BOOK_UPDATE_URL;
+
+  if (!configuredUrl) {
+    return null;
+  }
+
+  try {
+    const updateUrl = new URL(configuredUrl);
+    return updateUrl.protocol === 'https:' ? updateUrl.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
+function checkForUpdates() {
+  if (!app.isPackaged) {
+    return;
+  }
+
+  const updateFeedUrl = getUpdateFeedUrl();
+  if (!updateFeedUrl) {
+    return;
+  }
+
+  autoUpdater.setFeedURL({
+    provider: 'generic',
+    url: updateFeedUrl,
+  });
+  autoUpdater.autoDownload = true;
+  autoUpdater.autoInstallOnAppQuit = true;
+  autoUpdater.checkForUpdates().catch(() => {
+    // Update failures should not prevent the address book from opening.
+  });
+}
 
 function createAppIcon() {
   const svg = `<?xml version="1.0" encoding="UTF-8"?>
@@ -35,7 +73,10 @@ function createWindow() {
   mainWindow.webContents.on('context-menu', (event) => event.preventDefault());
 }
 
-app.on('ready', createWindow);
+app.on('ready', () => {
+  createWindow();
+  checkForUpdates();
+});
 
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
