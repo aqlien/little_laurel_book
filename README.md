@@ -41,6 +41,8 @@ The data directory can be changed with the `LITTLE_LAUREL_BOOK_DATA_DIR` environ
 
 The configured path is resolved as an absolute path, and the directory is created automatically when the app starts.
 
+Each contact can have one or more phone numbers. Phone labels are `Home`, `Work`, and `Mobile`. A single phone may be unlabeled; when a contact has multiple phones, every phone must have a label.
+
 ## Build and publish a release
 
 After installing and authenticating the GitHub CLI (`gh auth login`) in PowerShell, run:

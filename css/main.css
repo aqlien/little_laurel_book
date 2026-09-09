@@ -141,6 +141,28 @@ button:active {
   font-weight: 700;
 }
 
+.field-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.phone-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.phone-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 6px;
+}
+
+.phone-label {
+  min-width: 86px;
+}
+
 .field textarea {
   min-height: 84px;
   resize: vertical;

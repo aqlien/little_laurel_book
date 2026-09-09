@@ -7,13 +7,41 @@ const contactForm = document.getElementById("contactForm");
 const formTitle = document.getElementById("formTitle");
 const addBtn = document.getElementById("addBtn");
 const cancelBtn = document.getElementById("cancelBtn");
+const addPhoneBtn = document.getElementById("addPhoneBtn");
+const phoneList = document.getElementById("phoneList");
 
 const fields = {
   name: document.getElementById("nameInput"),
-  phone: document.getElementById("phoneInput"),
   email: document.getElementById("emailInput"),
   notes: document.getElementById("notesInput"),
 };
+
+const phoneLabels = ["", "Home", "Work", "Mobile"];
+
+function addPhoneRow(phone = { number: "", label: "" }) {
+  const row = document.createElement("div");
+  row.className = "phone-row";
+  row.innerHTML = `
+    <input class="phone-number" type="tel" placeholder="Phone number" value="${phone.number}" />
+    <select class="phone-label" aria-label="Phone label">
+      ${phoneLabels.map((label) => `<option value="${label}" ${label === phone.label ? "selected" : ""}>${label || "No label"}</option>`).join("")}
+    </select>
+    <button type="button" class="secondary remove-phone" aria-label="Remove phone number">Remove</button>
+  `;
+  phoneList.appendChild(row);
+}
+
+function getPhoneRows() {
+  return [...phoneList.querySelectorAll(".phone-row")].map((row) => ({
+    number: row.querySelector(".phone-number").value.trim(),
+    label: row.querySelector(".phone-label").value,
+  }));
+}
+
+function resetPhoneRows(phones = [{ number: "", label: "" }]) {
+  phoneList.replaceChildren();
+  phones.forEach(addPhoneRow);
+}
 
 async function loadContacts() {
   contacts = await window.electronApi.loadContacts();
@@ -21,6 +49,7 @@ async function loadContacts() {
 
 function resetForm() {
   contactForm.reset();
+  resetPhoneRows();
   editingId = null;
   formTitle.textContent = "Add Contact";
   contactForm.classList.remove("open");
@@ -33,7 +62,8 @@ function openForm() {
 function renderContacts() {
   const term = searchInput.value.trim().toLowerCase();
   const filtered = contacts.filter((contact) => {
-    const text = `${contact.name} ${contact.phone} ${contact.email} ${contact.notes}`.toLowerCase();
+    const phoneText = contact.phones.map((phone) => `${phone.number} ${phone.label}`).join(" ");
+    const text = `${contact.name} ${phoneText} ${contact.email} ${contact.notes}`.toLowerCase();
     return text.includes(term);
   });
 
@@ -47,7 +77,7 @@ function renderContacts() {
       (contact) => `
         <div class="contact-card">
           <div class="contact-name">${contact.name}</div>
-          <div class="contact-meta">Phone: ${contact.phone}</div>
+          ${contact.phones.map((phone) => `<div class="contact-meta">Phone${phone.label ? ` (${phone.label})` : ""}: ${phone.number}</div>`).join("")}
           <div class="contact-meta">Email: ${contact.email || "—"}</div>
           <div class="contact-meta">Notes: ${contact.notes || "—"}</div>
           <div class="contact-actions">
@@ -66,13 +96,18 @@ async function saveContact(event) {
   const entry = {
     id: editingId || Date.now().toString(),
     name: fields.name.value.trim(),
-    phone: fields.phone.value.trim(),
+    phones: getPhoneRows().filter((phone) => phone.number),
     email: fields.email.value.trim(),
     notes: fields.notes.value.trim(),
   };
 
-  if (!entry.name || !entry.phone) {
-    alert("Please add a name and phone number.");
+  if (!entry.name || entry.phones.length === 0) {
+    alert("Please add a name and at least one phone number.");
+    return;
+  }
+
+  if (entry.phones.length > 1 && entry.phones.some((phone) => !phone.label)) {
+    alert("Please label every phone number when a contact has more than one.");
     return;
   }
 
@@ -89,7 +124,7 @@ function startEditing(id) {
   editingId = id;
   formTitle.textContent = "Edit Contact";
   fields.name.value = contact.name;
-  fields.phone.value = contact.phone;
+  resetPhoneRows(contact.phones);
   fields.email.value = contact.email;
   fields.notes.value = contact.notes;
   openForm();
@@ -112,11 +147,18 @@ async function handleListClick(event) {
 }
 
 addBtn.addEventListener("click", openForm);
+addPhoneBtn.addEventListener("click", () => addPhoneRow());
 cancelBtn.addEventListener("click", resetForm);
 searchInput.addEventListener("input", renderContacts);
 contactForm.addEventListener("submit", saveContact);
 contactList.addEventListener("click", handleListClick);
+phoneList.addEventListener("click", (event) => {
+  if (event.target.closest(".remove-phone")) {
+    event.target.closest(".phone-row").remove();
+  }
+});
 
+resetPhoneRows();
 loadContacts().then(renderContacts).catch(() => {
   contactList.innerHTML = '<div class="empty">Unable to load contacts.</div>';
 });

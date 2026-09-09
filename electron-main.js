@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 
 let database;
+const allowedPhoneLabels = new Set(['', 'Home', 'Work', 'Mobile']);
 
 function configureDataDirectory() {
   const argument = process.argv.find((value) => value.startsWith('--data-dir='));
@@ -23,44 +24,105 @@ function initializeDatabase() {
   const databasePath = path.join(app.getPath('userData'), 'little-laurel-book.sqlite');
   database = new Database(databasePath);
   database.pragma('journal_mode = WAL');
+  database.pragma('foreign_keys = ON');
+
+  const contactColumns = database.prepare('PRAGMA table_info(contacts)').all();
+  if (contactColumns.some((column) => column.name === 'phone')) {
+    database.exec('DROP TABLE IF EXISTS contact_phones; DROP TABLE contacts;');
+  }
+
   database.exec(`
     CREATE TABLE IF NOT EXISTS contacts (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
-      phone TEXT NOT NULL,
       email TEXT NOT NULL DEFAULT '',
       notes TEXT NOT NULL DEFAULT '',
       created_at INTEGER NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS contact_phones (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      contact_id TEXT NOT NULL,
+      phone_number TEXT NOT NULL,
+      label TEXT NOT NULL DEFAULT '',
+      display_order INTEGER NOT NULL,
+      FOREIGN KEY (contact_id) REFERENCES contacts(id) ON DELETE CASCADE
     )
   `);
 }
 
 function registerDatabaseHandlers() {
   ipcMain.handle('contacts:load', () => {
-    return database.prepare(`
-      SELECT id, name, phone, email, notes
+    const contactRows = database.prepare(`
+      SELECT id, name, email, notes
       FROM contacts
       ORDER BY created_at DESC
     `).all();
+    const phoneRows = database.prepare(`
+      SELECT contact_id, phone_number, label
+      FROM contact_phones
+      ORDER BY display_order
+    `).all();
+    const phonesByContact = new Map();
+
+    for (const phone of phoneRows) {
+      const phones = phonesByContact.get(phone.contact_id) || [];
+      phones.push({ number: phone.phone_number, label: phone.label });
+      phonesByContact.set(phone.contact_id, phones);
+    }
+
+    return contactRows.map((contact) => ({
+      ...contact,
+      phones: phonesByContact.get(contact.id) || [],
+    }));
   });
 
   ipcMain.handle('contacts:save', (_event, contact) => {
-    database.prepare(`
-      INSERT INTO contacts (id, name, phone, email, notes, created_at)
-      VALUES (@id, @name, @phone, @email, @notes, @createdAt)
+    const phones = Array.isArray(contact.phones)
+      ? contact.phones.filter((phone) => phone && String(phone.number).trim())
+      : [];
+
+    if (phones.length === 0 || (phones.length > 1 && phones.some((phone) => !phone.label))) {
+      throw new Error('A contact must have one phone number, or all multiple phone numbers must be labeled.');
+    }
+
+    if (phones.some((phone) => !allowedPhoneLabels.has(String(phone.label || '')))) {
+      throw new Error('Phone labels must be Home, Work, or Mobile.');
+    }
+
+    const save = database.transaction(() => {
+      database.prepare(`
+      INSERT INTO contacts (id, name, email, notes, created_at)
+      VALUES (@id, @name, @email, @notes, @createdAt)
       ON CONFLICT(id) DO UPDATE SET
         name = excluded.name,
-        phone = excluded.phone,
         email = excluded.email,
         notes = excluded.notes
     `).run({
-      id: String(contact.id),
-      name: String(contact.name),
-      phone: String(contact.phone),
-      email: String(contact.email || ''),
-      notes: String(contact.notes || ''),
-      createdAt: Date.now(),
+        id: String(contact.id),
+        name: String(contact.name),
+        email: String(contact.email || ''),
+        notes: String(contact.notes || ''),
+        createdAt: Date.now(),
+      });
+
+      database.prepare('DELETE FROM contact_phones WHERE contact_id = ?').run(String(contact.id));
+      const insertPhone = database.prepare(`
+      INSERT INTO contact_phones (contact_id, phone_number, label, display_order)
+      VALUES (@contactId, @number, @label, @displayOrder)
+    `);
+
+      phones.forEach((phone, displayOrder) => {
+        insertPhone.run({
+          contactId: String(contact.id),
+          number: String(phone.number),
+          label: String(phone.label || ''),
+          displayOrder,
+        });
+      });
     });
+
+    save();
   });
 
   ipcMain.handle('contacts:delete', (_event, id) => {
