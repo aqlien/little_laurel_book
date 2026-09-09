@@ -10,6 +10,7 @@
     "release": "npm run dist && node scripts/release.js"
   },
   "dependencies": {
+    "better-sqlite3": "^13.0.3",
     "electron-updater": "^6.8.9"
   },
   "devDependencies": {

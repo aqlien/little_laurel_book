@@ -1,4 +1,3 @@
-const STORAGE_KEY = "simple-address-book";
 let contacts = [];
 let editingId = null;
 
@@ -16,17 +15,8 @@ const fields = {
   notes: document.getElementById("notesInput"),
 };
 
-function loadContacts() {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    contacts = saved ? JSON.parse(saved) : [];
-  } catch {
-    contacts = [];
-  }
-}
-
-function saveContacts() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(contacts));
+async function loadContacts() {
+  contacts = await window.electronApi.loadContacts();
 }
 
 function resetForm() {
@@ -70,7 +60,7 @@ function renderContacts() {
     .join("");
 }
 
-function saveContact(event) {
+async function saveContact(event) {
   event.preventDefault();
 
   const entry = {
@@ -86,13 +76,8 @@ function saveContact(event) {
     return;
   }
 
-  if (editingId) {
-    contacts = contacts.map((contact) => (contact.id === editingId ? entry : contact));
-  } else {
-    contacts.unshift(entry);
-  }
-
-  saveContacts();
+  await window.electronApi.saveContact(entry);
+  await loadContacts();
   renderContacts();
   resetForm();
 }
@@ -110,7 +95,7 @@ function startEditing(id) {
   openForm();
 }
 
-function handleListClick(event) {
+async function handleListClick(event) {
   const button = event.target.closest("button[data-action]");
   if (!button) return;
 
@@ -120,8 +105,8 @@ function handleListClick(event) {
   if (action === "edit") {
     startEditing(id);
   } else if (action === "delete") {
-    contacts = contacts.filter((contact) => contact.id !== id);
-    saveContacts();
+    await window.electronApi.deleteContact(id);
+    await loadContacts();
     renderContacts();
   }
 }
@@ -132,5 +117,6 @@ searchInput.addEventListener("input", renderContacts);
 contactForm.addEventListener("submit", saveContact);
 contactList.addEventListener("click", handleListClick);
 
-loadContacts();
-renderContacts();
+loadContacts().then(renderContacts).catch(() => {
+  contactList.innerHTML = '<div class="empty">Unable to load contacts.</div>';
+});

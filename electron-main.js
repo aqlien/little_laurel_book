@@ -1,6 +1,72 @@
-const { app, BrowserWindow, Menu, nativeImage } = require('electron');
+const { app, BrowserWindow, Menu, nativeImage, ipcMain } = require('electron');
 const { autoUpdater } = require('electron-updater');
+const Database = require('better-sqlite3');
+const fs = require('fs');
 const path = require('path');
+
+let database;
+
+function configureDataDirectory() {
+  const argument = process.argv.find((value) => value.startsWith('--data-dir='));
+  const configuredDirectory = argument
+    ? argument.slice('--data-dir='.length)
+    : process.env.ADDRESS_BOOK_DATA_DIR;
+
+  if (configuredDirectory) {
+    const dataDirectory = path.resolve(configuredDirectory);
+    fs.mkdirSync(dataDirectory, { recursive: true });
+    app.setPath('userData', dataDirectory);
+  }
+}
+
+function initializeDatabase() {
+  const databasePath = path.join(app.getPath('userData'), 'address-book.sqlite');
+  database = new Database(databasePath);
+  database.pragma('journal_mode = WAL');
+  database.exec(`
+    CREATE TABLE IF NOT EXISTS contacts (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      phone TEXT NOT NULL,
+      email TEXT NOT NULL DEFAULT '',
+      notes TEXT NOT NULL DEFAULT '',
+      created_at INTEGER NOT NULL
+    )
+  `);
+}
+
+function registerDatabaseHandlers() {
+  ipcMain.handle('contacts:load', () => {
+    return database.prepare(`
+      SELECT id, name, phone, email, notes
+      FROM contacts
+      ORDER BY created_at DESC
+    `).all();
+  });
+
+  ipcMain.handle('contacts:save', (_event, contact) => {
+    database.prepare(`
+      INSERT INTO contacts (id, name, phone, email, notes, created_at)
+      VALUES (@id, @name, @phone, @email, @notes, @createdAt)
+      ON CONFLICT(id) DO UPDATE SET
+        name = excluded.name,
+        phone = excluded.phone,
+        email = excluded.email,
+        notes = excluded.notes
+    `).run({
+      id: String(contact.id),
+      name: String(contact.name),
+      phone: String(contact.phone),
+      email: String(contact.email || ''),
+      notes: String(contact.notes || ''),
+      createdAt: Date.now(),
+    });
+  });
+
+  ipcMain.handle('contacts:delete', (_event, id) => {
+    database.prepare('DELETE FROM contacts WHERE id = ?').run(String(id));
+  });
+}
 
 function getUpdateFeedUrl() {
   const argument = process.argv.find((value) => value.startsWith('--update-host='));
@@ -74,6 +140,9 @@ function createWindow() {
 }
 
 app.on('ready', () => {
+  configureDataDirectory();
+  initializeDatabase();
+  registerDatabaseHandlers();
   createWindow();
   checkForUpdates();
 });
