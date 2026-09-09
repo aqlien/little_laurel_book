@@ -1,8 +1,8 @@
 {
-  "name": "address-book",
-  "version": "0.0.2-alpha",
+  "name": "little-laurel-book",
+  "version": "0.0.3-alpha",
   "private": true,
-  "description": "Simple desktop address book built with Electron.",
+  "description": "Personal address book built with Electron.",
   "main": "electron-main.js",
   "scripts": {
     "start": "electron .",
@@ -18,8 +18,8 @@
     "electron-builder": "^26.15.3"
   },
   "build": {
-    "appId": "com.addressbook.simple",
-    "productName": "Address Book",
+    "appId": "com.aqlien.littlelaurelbook",
+    "productName": "Little Laurel Book",
     "files": [
       "**/*"
     ],

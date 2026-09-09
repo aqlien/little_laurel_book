@@ -65,9 +65,9 @@ if (releaseExists) {
     releaseTag,
     ...assets,
     '--title',
-    'Address Book latest',
+    'Little Laurel Book latest',
     '--notes',
-    'Automated Address Book release.',
+    'Automated Little Laurel Book release.',
     '--repo',
     repository,
   ]);

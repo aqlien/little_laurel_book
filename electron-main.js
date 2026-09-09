@@ -10,7 +10,7 @@ function configureDataDirectory() {
   const argument = process.argv.find((value) => value.startsWith('--data-dir='));
   const configuredDirectory = argument
     ? argument.slice('--data-dir='.length)
-    : process.env.ADDRESS_BOOK_DATA_DIR;
+    : process.env.LITTLE_LAUREL_BOOK_DATA_DIR;
 
   if (configuredDirectory) {
     const dataDirectory = path.resolve(configuredDirectory);
@@ -20,7 +20,7 @@ function configureDataDirectory() {
 }
 
 function initializeDatabase() {
-  const databasePath = path.join(app.getPath('userData'), 'address-book.sqlite');
+  const databasePath = path.join(app.getPath('userData'), 'little-laurel-book.sqlite');
   database = new Database(databasePath);
   database.pragma('journal_mode = WAL');
   database.exec(`
@@ -70,7 +70,9 @@ function registerDatabaseHandlers() {
 
 function getUpdateFeedUrl() {
   const argument = process.argv.find((value) => value.startsWith('--update-host='));
-  const configuredUrl = argument ? argument.slice('--update-host='.length) : process.env.ADDRESS_BOOK_UPDATE_URL;
+  const configuredUrl = argument
+    ? argument.slice('--update-host='.length)
+    : process.env.LITTLE_LAUREL_BOOK_UPDATE_URL;
 
   if (!configuredUrl) {
     return null;
@@ -122,7 +124,7 @@ function createWindow() {
     height: 760,
     minWidth: 840,
     minHeight: 620,
-    title: 'Address Book',
+    title: 'Little Laurel Book',
     icon: createAppIcon(),
     autoHideMenuBar: true,
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
