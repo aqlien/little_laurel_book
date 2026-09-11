@@ -1,0 +1,30 @@
+[
+  {
+    "file": "home.svg",
+    "source": "SVGRepo.com",
+    "license": "Public domain",
+    "url": "https://www.svgrepo.com/svg/441839/home",
+    "notes": "Home phone label icon"
+  },
+  {
+    "file": "work.svg",
+    "source": "SVGRepo.com",
+    "license": "Public domain",
+    "url": "https://www.svgrepo.com/svg/441886/work",
+    "notes": "Work phone label icon"
+  },
+  {
+    "file": "mobile.svg",
+    "source": "SVGRepo.com",
+    "license": "Public domain",
+    "url": "https://www.svgrepo.com/svg/441808/calls",
+    "notes": "Mobile phone label icon"
+  },
+  {
+    "file": "none.svg",
+    "source": "SVGRepo.com",
+    "license": "Public domain",
+    "url": "https://www.svgrepo.com/svg/441845/kebab-menu-horizontal",
+    "notes": "Fallback icon shown when a label is absent or intentionally omitted"
+  }
+]
