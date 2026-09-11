@@ -188,44 +188,6 @@ button:active {
   margin-top: 4px;
 }
 
-.contact-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.contact-card {
-  background: #f0f0f0;
-  border: 2px solid;
-  border-color: var(--win-highlight) var(--win-dark) var(--win-dark) var(--win-highlight);
-  padding: 10px;
-}
-
-.contact-name {
-  font-size: 13px;
-  font-weight: 700;
-  margin-bottom: 4px;
-}
-
-.contact-meta {
-  color: #000;
-  margin-bottom: 2px;
-  font-size: 12px;
-}
-
-.contact-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.empty {
-  color: #000;
-  padding: 20px 0;
-  text-align: center;
-  font-size: 12px;
-}
-
 @media (max-width: 760px) {
   .content {
     grid-template-columns: 1fr;

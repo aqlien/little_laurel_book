@@ -1,0 +1,30 @@
+[
+  {
+    "file": "home.svg",
+    "source": "SVGRepo.com",
+    "license": "Public domain",
+    "url": "https://www.svgrepo.com/svg/441839/home",
+    "notes": "Home address label icon"
+  },
+  {
+    "file": "work.svg",
+    "source": "SVGRepo.com",
+    "license": "Public domain",
+    "url": "https://www.svgrepo.com/svg/441886/work",
+    "notes": "Work address label icon"
+  },
+  {
+    "file": "other.svg",
+    "source": "SVGRepo.com",
+    "license": "Public domain",
+    "url": "https://www.svgrepo.com/svg/441834/flag",
+    "notes": "Other address label icon"
+  },
+  {
+    "file": "none.svg",
+    "source": "SVGRepo.com",
+    "license": "Public domain",
+    "url": "https://www.svgrepo.com/svg/441845/kebab-menu-horizontal",
+    "notes": "Fallback icon shown when a label is absent or intentionally omitted"
+  }
+]
