@@ -1,0 +1,54 @@
+:root {
+  --win-bg: #c0c0c0;
+  --win-panel: #d4d0c8;
+  --win-button: #c0c0c0;
+  --win-dark: #808080;
+  --win-darker: #404040;
+  --win-highlight: #ffffff;
+  --win-text: #000000;
+  --win-title: #000080;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: "MS Sans Serif", "Tahoma", sans-serif;
+  background: var(--win-bg);
+  color: var(--win-text);
+}
+
+h1 {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+button {
+  font-family: inherit;
+  font-size: 12px;
+  background: var(--win-button);
+  color: #000;
+  border: 2px solid;
+  border-color: var(--win-highlight) var(--win-dark) var(--win-dark) var(--win-highlight);
+  padding: 6px 12px;
+  cursor: pointer;
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+button:active {
+  border-color: var(--win-dark) var(--win-highlight) var(--win-highlight) var(--win-dark);
+  box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.primary {
+  font-weight: 700;
+}

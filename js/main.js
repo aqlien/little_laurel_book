@@ -1,7 +1,8 @@
 import { deleteContact, loadContacts, saveContact } from "./contact-store.js";
-import { attachLabelPickerEvents, closeLabelPickers, createLabelPicker } from "./label-picker.js";
+import { attachLabelPickerEvents, closeLabelPickers } from "./label-picker.js";
 import { createContactList, filterContacts } from "./contact-list.js";
 import { addressLabels, phoneLabels } from "./label-options.js";
+import { createContactForm } from "./contact-form.js";
 
 let contacts = [];
 let editingId = null;
@@ -23,92 +24,11 @@ const fields = {
   notes: document.getElementById("notesInput"),
 };
 
-function addPhoneRow(phone = { number: "", label: "" }) {
-  const row = document.createElement("div");
-  row.className = "phone-row";
-
-  const numberInput = document.createElement("input");
-  numberInput.className = "phone-number";
-  numberInput.type = "tel";
-  numberInput.placeholder = "Phone number";
-  numberInput.value = phone.number;
-
-  const labelPicker = createLabelPicker({ options: phoneLabels, value: phone.label, ariaLabel: "Phone label" });
-  const removeButton = document.createElement("button");
-  removeButton.type = "button";
-  removeButton.className = "secondary remove-phone";
-  removeButton.setAttribute("aria-label", "Remove phone number");
-  removeButton.textContent = "Remove";
-
-  row.append(numberInput, labelPicker, removeButton);
-  phoneList.appendChild(row);
-}
-
-function addAddressRow(address = { line1: "", line2: "", city: "", state: "", postalCode: "", country: "", label: "" }) {
-  const row = document.createElement("div");
-  row.className = "address-row";
-  const fieldsGrid = document.createElement("div");
-  fieldsGrid.className = "address-fields";
-
-  [["line1", "Street"], ["line2", "Apt / Suite"], ["city", "City"], ["state", "State"], ["postalCode", "Postal code"], ["country", "Country"]].forEach(([key, placeholder]) => {
-    const input = document.createElement("input");
-    input.className = "address-field";
-    input.placeholder = placeholder;
-    input.value = address[key] || "";
-    fieldsGrid.appendChild(input);
-  });
-
-  const labelPicker = createLabelPicker({ options: addressLabels, value: address.label, ariaLabel: "Address label" });
-  const removeButton = document.createElement("button");
-  removeButton.type = "button";
-  removeButton.className = "secondary remove-address";
-  removeButton.setAttribute("aria-label", "Remove address");
-  removeButton.textContent = "Remove";
-
-  row.append(fieldsGrid, labelPicker, removeButton);
-  addressList.appendChild(row);
-}
-
-function getPhoneRows() {
-  return [...phoneList.querySelectorAll(".phone-row")].map((row) => ({
-    number: row.querySelector(".phone-number").value.trim(),
-    label: row.querySelector(".type-label-picker").dataset.value,
-  }));
-}
-
-function getAddressRows() {
-  return [...addressList.querySelectorAll(".address-row")]
-    .map((row) => {
-      const inputs = row.querySelectorAll(".address-field");
-      return {
-        line1: inputs[0].value.trim(),
-        line2: inputs[1].value.trim(),
-        city: inputs[2].value.trim(),
-        state: inputs[3].value.trim(),
-        postalCode: inputs[4].value.trim(),
-        country: inputs[5].value.trim(),
-        label: row.querySelector(".type-label-picker").dataset.value,
-      };
-    })
-    .filter((address) => [address.line1, address.line2, address.city, address.state, address.postalCode, address.country].some((value) => value));
-}
-
-function resetPhoneRows(phones = [{ number: "", label: "" }]) {
-  phoneList.replaceChildren();
-  phones.forEach(addPhoneRow);
-}
-
-function resetAddressRows(addresses = [{ line1: "", line2: "", city: "", state: "", postalCode: "", country: "", label: "" }]) {
-  addressList.replaceChildren();
-  addresses.forEach(addAddressRow);
-}
+const form = createContactForm({ contactForm, formTitle, phoneList, addressList, fields });
 
 function resetForm() {
-  contactForm.reset();
-  resetPhoneRows();
-  resetAddressRows();
+  form.reset();
   editingId = null;
-  formTitle.textContent = "Add Contact";
   contactForm.classList.remove("open");
 }
 
@@ -124,11 +44,7 @@ async function saveContactForm(event) {
   event.preventDefault();
   const entry = {
     id: editingId || Date.now().toString(),
-    name: fields.name.value.trim(),
-    phones: getPhoneRows().filter((phone) => phone.number),
-    addresses: getAddressRows(),
-    email: fields.email.value.trim(),
-    notes: fields.notes.value.trim(),
+    ...form.getContactValues(),
   };
 
   if (!entry.name || entry.phones.length === 0) {
@@ -155,11 +71,7 @@ function startEditing(id) {
   if (!contact) return;
   editingId = id;
   formTitle.textContent = "Edit Contact";
-  fields.name.value = contact.name;
-  resetPhoneRows(contact.phones || []);
-  resetAddressRows(contact.addresses || []);
-  fields.email.value = contact.email;
-  fields.notes.value = contact.notes;
+  form.populate(contact);
   openForm();
 }
 
@@ -177,8 +89,8 @@ async function handleListClick(event) {
 }
 
 addBtn.addEventListener("click", openForm);
-addPhoneBtn.addEventListener("click", () => addPhoneRow());
-addAddressBtn.addEventListener("click", () => addAddressRow());
+addPhoneBtn.addEventListener("click", () => form.addPhoneRow());
+addAddressBtn.addEventListener("click", () => form.addAddressRow());
 cancelBtn.addEventListener("click", resetForm);
 searchInput.addEventListener("input", renderContacts);
 contactForm.addEventListener("submit", saveContactForm);
@@ -195,8 +107,7 @@ document.addEventListener("click", (event) => {
   if (!event.target.closest(".type-label-picker")) closeLabelPickers();
 });
 
-resetPhoneRows();
-resetAddressRows();
+form.resetRows();
 loadContacts().then((loadedContacts) => {
   contacts = loadedContacts;
   renderContacts();

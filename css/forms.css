@@ -1,0 +1,78 @@
+.toolbar input,
+.field input,
+.field textarea,
+.address-field,
+.phone-number,
+.address-label {
+  width: 100%;
+  padding: 4px 6px;
+  font-size: 12px;
+  font-family: inherit;
+  background: #fff;
+  color: #000;
+  border: 2px solid;
+  border-color: var(--win-dark) var(--win-highlight) var(--win-highlight) var(--win-dark);
+}
+
+.form {
+  display: none;
+  gap: 10px;
+  flex-direction: column;
+}
+
+.form.open {
+  display: flex;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.field-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.phone-list,
+.address-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.phone-row,
+.address-row {
+  display: grid;
+  gap: 6px;
+}
+
+.phone-row {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+}
+
+.address-row {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: start;
+}
+
+.address-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.field textarea {
+  min-height: 84px;
+  resize: vertical;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}

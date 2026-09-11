@@ -56,7 +56,12 @@ This builds the Little Laurel Book Windows installer, creates the `latest` GitHu
 ## Files
 
 - `index.html` — app HTML
-- `css/main.css` — app styles
+- `css/main.css` — stylesheet entry point and import order
+- `css/base.css` — theme tokens, reset, typography, and global controls
+- `css/layout.css` — application shell and responsive layout
+- `css/forms.css` — contact form and multi-value field styles
+- `css/label-picker.css` — shared label picker styles
+- `css/contacts.css` — contact list and card styles
 - `js/main.js` — app logic
 - `electron-main.js` — Electron main process
 - `preload.js` — preload script
