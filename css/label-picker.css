@@ -1,0 +1,55 @@
+.phone-label-picker {
+  position: relative;
+  min-width: 112px;
+}
+
+.phone-label-button,
+.phone-label-option {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+  white-space: nowrap;
+}
+
+.phone-label-button {
+  min-height: 28px;
+  padding: 4px 6px;
+  text-align: left;
+}
+
+.phone-label-menu {
+  position: absolute;
+  z-index: 2;
+  top: 100%;
+  left: 0;
+  min-width: 100%;
+  padding: 2px;
+  background: var(--win-panel);
+  border: 2px solid;
+  border-color: var(--win-highlight) var(--win-dark) var(--win-dark) var(--win-highlight);
+}
+
+.phone-label-option {
+  padding: 5px 6px;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.phone-label-option:hover,
+.phone-label-option[aria-selected="true"] {
+  background: var(--win-title);
+  color: #fff;
+}
+
+.phone-label-button:focus-visible,
+.phone-label-option:focus-visible {
+  outline: 1px dotted currentColor;
+  outline-offset: -2px;
+}
+
+.phone-label-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
