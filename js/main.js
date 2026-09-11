@@ -3,6 +3,7 @@ import { attachLabelPickerEvents, closeLabelPickers } from "./label-picker.js";
 import { createContactList, filterContacts } from "./contact-list.js";
 import { addressLabels, phoneLabels } from "./label-options.js";
 import { createContactForm } from "./contact-form.js";
+import { getContactValidationError } from "./contact-validation.js";
 
 let contacts = [];
 let editingId = null;
@@ -47,16 +48,9 @@ async function saveContactForm(event) {
     ...form.getContactValues(),
   };
 
-  if (!entry.name || entry.phones.length === 0) {
-    alert("Please add a name and at least one phone number.");
-    return;
-  }
-  if (entry.phones.length > 1 && entry.phones.some((phone) => !phone.label)) {
-    alert("Please label every phone number when a contact has more than one.");
-    return;
-  }
-  if (entry.addresses.length > 1 && entry.addresses.some((address) => !address.label)) {
-    alert("Please label every address when a contact has more than one.");
+  const validationError = getContactValidationError(entry);
+  if (validationError) {
+    alert(validationError);
     return;
   }
 
