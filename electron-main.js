@@ -6,6 +6,7 @@ const path = require('path');
 
 let database;
 const allowedPhoneLabels = new Set(['', 'Home', 'Work', 'Mobile']);
+const allowedAddressLabels = new Set(['', 'Home', 'Work', 'Other']);
 
 function configureDataDirectory() {
   const argument = process.argv.find((value) => value.startsWith('--data-dir='));
@@ -28,7 +29,7 @@ function initializeDatabase() {
 
   const contactColumns = database.prepare('PRAGMA table_info(contacts)').all();
   if (contactColumns.some((column) => column.name === 'phone')) {
-    database.exec('DROP TABLE IF EXISTS contact_phones; DROP TABLE contacts;');
+    database.exec('DROP TABLE IF EXISTS contact_phones; DROP TABLE IF EXISTS contact_addresses; DROP TABLE contacts;');
   }
 
   database.exec(`
@@ -44,6 +45,20 @@ function initializeDatabase() {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       contact_id TEXT NOT NULL,
       phone_number TEXT NOT NULL,
+      label TEXT NOT NULL DEFAULT '',
+      display_order INTEGER NOT NULL,
+      FOREIGN KEY (contact_id) REFERENCES contacts(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS contact_addresses (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      contact_id TEXT NOT NULL,
+      line_1 TEXT NOT NULL DEFAULT '',
+      line_2 TEXT NOT NULL DEFAULT '',
+      city TEXT NOT NULL DEFAULT '',
+      state TEXT NOT NULL DEFAULT '',
+      postal_code TEXT NOT NULL DEFAULT '',
+      country TEXT NOT NULL DEFAULT '',
       label TEXT NOT NULL DEFAULT '',
       display_order INTEGER NOT NULL,
       FOREIGN KEY (contact_id) REFERENCES contacts(id) ON DELETE CASCADE
@@ -63,23 +78,47 @@ function registerDatabaseHandlers() {
       FROM contact_phones
       ORDER BY display_order
     `).all();
-    const phonesByContact = new Map();
+    const addressRows = database.prepare(`
+      SELECT contact_id, line_1, line_2, city, state, postal_code, country, label
+      FROM contact_addresses
+      ORDER BY display_order
+    `).all();
 
+    const phonesByContact = new Map();
     for (const phone of phoneRows) {
       const phones = phonesByContact.get(phone.contact_id) || [];
       phones.push({ number: phone.phone_number, label: phone.label });
       phonesByContact.set(phone.contact_id, phones);
     }
 
+    const addressesByContact = new Map();
+    for (const address of addressRows) {
+      const addresses = addressesByContact.get(address.contact_id) || [];
+      addresses.push({
+        line1: address.line_1,
+        line2: address.line_2,
+        city: address.city,
+        state: address.state,
+        postalCode: address.postal_code,
+        country: address.country,
+        label: address.label,
+      });
+      addressesByContact.set(address.contact_id, addresses);
+    }
+
     return contactRows.map((contact) => ({
       ...contact,
       phones: phonesByContact.get(contact.id) || [],
+      addresses: addressesByContact.get(contact.id) || [],
     }));
   });
 
   ipcMain.handle('contacts:save', (_event, contact) => {
     const phones = Array.isArray(contact.phones)
       ? contact.phones.filter((phone) => phone && String(phone.number).trim())
+      : [];
+    const addresses = Array.isArray(contact.addresses)
+      ? contact.addresses.filter((address) => address && [address.line1, address.line2, address.city, address.state, address.postalCode, address.country].some((value) => String(value || '').trim()))
       : [];
 
     if (phones.length === 0 || (phones.length > 1 && phones.some((phone) => !phone.label))) {
@@ -88,6 +127,14 @@ function registerDatabaseHandlers() {
 
     if (phones.some((phone) => !allowedPhoneLabels.has(String(phone.label || '')))) {
       throw new Error('Phone labels must be Home, Work, or Mobile.');
+    }
+
+    if (addresses.length > 1 && addresses.some((address) => !address.label)) {
+      throw new Error('A contact with multiple addresses must label every address.');
+    }
+
+    if (addresses.some((address) => !allowedAddressLabels.has(String(address.label || '')))) {
+      throw new Error('Address labels must be Home, Work, or Other.');
     }
 
     const save = database.transaction(() => {
@@ -117,6 +164,26 @@ function registerDatabaseHandlers() {
           contactId: String(contact.id),
           number: String(phone.number),
           label: String(phone.label || ''),
+          displayOrder,
+        });
+      });
+
+      database.prepare('DELETE FROM contact_addresses WHERE contact_id = ?').run(String(contact.id));
+      const insertAddress = database.prepare(`
+      INSERT INTO contact_addresses (contact_id, line_1, line_2, city, state, postal_code, country, label, display_order)
+      VALUES (@contactId, @line1, @line2, @city, @state, @postalCode, @country, @label, @displayOrder)
+    `);
+
+      addresses.forEach((address, displayOrder) => {
+        insertAddress.run({
+          contactId: String(contact.id),
+          line1: String(address.line1 || ''),
+          line2: String(address.line2 || ''),
+          city: String(address.city || ''),
+          state: String(address.state || ''),
+          postalCode: String(address.postalCode || ''),
+          country: String(address.country || ''),
+          label: String(address.label || ''),
           displayOrder,
         });
       });
