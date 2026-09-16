@@ -1,6 +1,6 @@
 {
   "name": "little-laurel-book",
-  "version": "0.1.0-alpha",
+  "version": "0.1.2-alpha",
   "private": true,
   "description": "Personal address book built with Electron.",
   "main": "electron-main.js",

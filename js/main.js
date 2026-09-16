@@ -95,6 +95,7 @@ addDateBtn.addEventListener("click", () => form.addDateRow());
 addNumberBtn.addEventListener("click", () => form.addNumberRow());
 cancelBtn.addEventListener("click", resetForm);
 searchInput.addEventListener("input", renderContacts);
+searchInput.addEventListener("search", renderContacts);
 contactForm.addEventListener("submit", saveContactForm);
 contactList.addEventListener("click", handleListClick);
 attachLabelPickerEvents(phoneList, phoneLabels, "phone");

@@ -1,11 +1,15 @@
 export function filterContacts(contacts, searchTerm) {
-  const term = searchTerm.trim().toLowerCase();
+  const term = String(searchTerm || "").trim().toLowerCase();
   return contacts.filter((contact) => {
-    const phoneText = (contact.phones || []).map((phone) => `${phone.number} ${phone.label}`).join(" ");
-    const addressText = (contact.addresses || []).map((address) => `${formatAddress(address)} ${address.label}`).join(" ");
-    const dateText = (contact.dates || []).map((date) => `${date.date} ${date.label}`).join(" ");
-    const numberText = (contact.numbers || []).map((number) => `${number.number} ${number.label}`).join(" ");
-    return `${contact.name} ${phoneText} ${addressText} ${dateText} ${numberText} ${contact.email} ${contact.notes}`.toLowerCase().includes(term);
+    const phoneText = (contact.phones || []).map((phone) => `${phone.number || ""} ${phone.label || ""}`).join(" ");
+    const addressText = (contact.addresses || []).map((address) => `${formatAddress(address)} ${address.label || ""}`).join(" ");
+    const dateText = (contact.dates || []).map((date) => `${date.date || ""} ${date.label || ""}`).join(" ");
+    const numberText = (contact.numbers || []).map((number) => `${number.number || ""} ${number.label || ""}`).join(" ");
+    const searchableText = [contact.name, phoneText, addressText, dateText, numberText, contact.email, contact.notes]
+      .filter((value) => value != null)
+      .join(" ")
+      .toLowerCase();
+    return searchableText.includes(term);
   });
 }
 
