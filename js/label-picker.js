@@ -1,10 +1,11 @@
 import { createLabelIcon } from "./label-icons.js";
 
-export function createLabelPicker({ options, value = "", ariaLabel }) {
-  const selected = options.find((option) => option.value === value) || options[0];
+export function createLabelPicker({ options, value = "", ariaLabel, allowCustom = false, customLabelPlaceholder = "Custom label" }) {
+  const selected = options.find((option) => option.value === value) || (value ? { value, text: value } : options[0]);
   const picker = document.createElement("div");
   picker.className = "type-label-picker";
   picker.dataset.value = selected.value;
+  picker.dataset.allowCustom = String(allowCustom);
 
   const button = document.createElement("button");
   button.type = "button";
@@ -19,6 +20,7 @@ export function createLabelPicker({ options, value = "", ariaLabel }) {
   menu.setAttribute("role", "listbox");
   menu.hidden = true;
   options.forEach((option) => menu.appendChild(createOption(option, selected.value)));
+  if (allowCustom) menu.appendChild(createCustomOption(customLabelPlaceholder));
 
   picker.append(button, menu);
   return picker;
@@ -33,9 +35,17 @@ export function attachLabelPickerEvents(container, options) {
     if (button) {
       const menu = picker.querySelector(".type-label-menu");
       const isOpen = !menu.hidden;
+      refreshOptions(picker, options);
       closeLabelPickers();
       menu.hidden = isOpen;
       button.setAttribute("aria-expanded", String(!isOpen));
+      return;
+    }
+
+    const addCustomButton = event.target.closest(".type-label-custom-add");
+    if (addCustomButton) {
+      const customInput = picker.querySelector(".type-label-custom-input");
+      selectCustomLabel(picker, options, customInput.value);
       return;
     }
 
@@ -50,6 +60,12 @@ export function attachLabelPickerEvents(container, options) {
     });
     picker.querySelector(".type-label-menu").hidden = true;
     picker.querySelector(".type-label-button").setAttribute("aria-expanded", "false");
+  });
+
+  container.addEventListener("input", (event) => {
+    const picker = event.target.closest(".type-label-picker");
+    if (!picker || !container.contains(picker) || !event.target.classList.contains("type-label-custom-input")) return;
+    picker.querySelector(".type-label-custom-add").disabled = !event.target.value.trim();
   });
 
   container.addEventListener("keydown", (event) => {
@@ -80,6 +96,9 @@ export function attachLabelPickerEvents(container, options) {
         button.setAttribute("aria-expanded", "false");
         button.focus();
       }
+    } else if (event.target.classList.contains("type-label-custom-input") && event.key === "Enter") {
+      event.preventDefault();
+      selectCustomLabel(picker, options, event.target.value);
     }
   });
 }
@@ -103,6 +122,56 @@ function createOption(option, selected) {
   if (icon) element.append(icon);
   element.append(document.createTextNode(option.text));
   return element;
+}
+
+function createCustomOption(placeholder) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "type-label-custom";
+
+  const input = document.createElement("input");
+  input.className = "type-label-custom-input";
+  input.type = "text";
+  input.placeholder = placeholder;
+  input.setAttribute("aria-label", placeholder);
+
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "type-label-custom-add";
+  button.textContent = "Add";
+  button.disabled = true;
+
+  wrapper.append(input, button);
+  return wrapper;
+}
+
+function refreshOptions(picker, options) {
+  const menu = picker.querySelector(".type-label-menu");
+  const customOption = menu.querySelector(".type-label-custom");
+  options.forEach((option) => {
+    if (!menu.querySelector(`.type-label-option[data-value="${CSS.escape(option.value)}"]`)) {
+      menu.insertBefore(createOption(option, picker.dataset.value), customOption);
+    }
+  });
+}
+
+function selectCustomLabel(picker, options, value) {
+  const label = value.trim();
+  if (!label) return;
+
+  if (!options.some((option) => option.value === label)) options.push({ value: label, text: label });
+  const optionElements = [...picker.querySelectorAll(".type-label-option")];
+  let optionElement = optionElements.find((element) => element.dataset.value === label);
+  if (!optionElement) {
+    optionElement = createOption({ value: label, text: label }, picker.dataset.value);
+    picker.querySelector(".type-label-menu").insertBefore(optionElement, picker.querySelector(".type-label-custom"));
+  }
+  picker.dataset.value = label;
+  renderLabel(picker.querySelector(".type-label-button"), { value: label, text: label });
+  picker.querySelectorAll(".type-label-option").forEach((item) => {
+    item.setAttribute("aria-selected", String(item === optionElement));
+  });
+  picker.querySelector(".type-label-menu").hidden = true;
+  picker.querySelector(".type-label-button").setAttribute("aria-expanded", "false");
 }
 
 function renderLabel(button, option) {

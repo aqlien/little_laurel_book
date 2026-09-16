@@ -1,9 +1,11 @@
 import { deleteContact, loadContacts, saveContact } from "./contact-store.js";
 import { attachLabelPickerEvents, closeLabelPickers } from "./label-picker.js";
 import { createContactList, filterContacts } from "./contact-list.js";
-import { addressLabels, phoneLabels } from "./label-options.js";
+import { addressLabels, dateLabels, numberLabels, phoneLabels } from "./label-options.js";
 import { createContactForm } from "./contact-form.js";
 import { getContactValidationError } from "./contact-validation.js";
+import { registerDateLabels } from "./date-fields.js";
+import { registerNumberLabels } from "./number-fields.js";
 
 let contacts = [];
 let editingId = null;
@@ -16,8 +18,12 @@ const addBtn = document.getElementById("addBtn");
 const cancelBtn = document.getElementById("cancelBtn");
 const addPhoneBtn = document.getElementById("addPhoneBtn");
 const addAddressBtn = document.getElementById("addAddressBtn");
+const addDateBtn = document.getElementById("addDateBtn");
+const addNumberBtn = document.getElementById("addNumberBtn");
 const phoneList = document.getElementById("phoneList");
 const addressList = document.getElementById("addressList");
+const dateList = document.getElementById("dateList");
+const numberList = document.getElementById("numberList");
 
 const fields = {
   name: document.getElementById("nameInput"),
@@ -25,7 +31,7 @@ const fields = {
   notes: document.getElementById("notesInput"),
 };
 
-const form = createContactForm({ contactForm, formTitle, phoneList, addressList, fields });
+const form = createContactForm({ contactForm, formTitle, phoneList, addressList, dateList, numberList, fields });
 
 function resetForm() {
   form.reset();
@@ -85,17 +91,27 @@ async function handleListClick(event) {
 addBtn.addEventListener("click", openForm);
 addPhoneBtn.addEventListener("click", () => form.addPhoneRow());
 addAddressBtn.addEventListener("click", () => form.addAddressRow());
+addDateBtn.addEventListener("click", () => form.addDateRow());
+addNumberBtn.addEventListener("click", () => form.addNumberRow());
 cancelBtn.addEventListener("click", resetForm);
 searchInput.addEventListener("input", renderContacts);
 contactForm.addEventListener("submit", saveContactForm);
 contactList.addEventListener("click", handleListClick);
 attachLabelPickerEvents(phoneList, phoneLabels);
 attachLabelPickerEvents(addressList, addressLabels);
+attachLabelPickerEvents(dateList, dateLabels);
+attachLabelPickerEvents(numberList, numberLabels);
 phoneList.addEventListener("click", (event) => {
   if (event.target.closest(".remove-phone")) event.target.closest(".phone-row").remove();
 });
 addressList.addEventListener("click", (event) => {
   if (event.target.closest(".remove-address")) event.target.closest(".address-row").remove();
+});
+dateList.addEventListener("click", (event) => {
+  if (event.target.closest(".remove-date")) event.target.closest(".date-row").remove();
+});
+numberList.addEventListener("click", (event) => {
+  if (event.target.closest(".remove-number")) event.target.closest(".number-row").remove();
 });
 document.addEventListener("click", (event) => {
   if (!event.target.closest(".type-label-picker")) closeLabelPickers();
@@ -103,6 +119,8 @@ document.addEventListener("click", (event) => {
 
 form.resetRows();
 loadContacts().then((loadedContacts) => {
+  loadedContacts.forEach((contact) => registerDateLabels(contact.dates || []));
+  loadedContacts.forEach((contact) => registerNumberLabels(contact.numbers || []));
   contacts = loadedContacts;
   renderContacts();
 }).catch(() => {

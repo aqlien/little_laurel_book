@@ -13,3 +13,14 @@ export const addressLabels = [
   { value: "Work", text: "Work", icon: getLabelIconPath("address", "Work") },
   { value: "Other", text: "Other", icon: getLabelIconPath("address", "Other") },
 ];
+
+export const dateLabels = [
+  { value: "Birthday", text: "Birthday" },
+  { value: "Anniversary", text: "Anniversary" },
+];
+
+export const numberLabels = [
+  { value: "SSN", text: "SSN" },
+  { value: "KTN", text: "KTN" },
+  { value: "Global Entry ID", text: "Global Entry ID" },
+];

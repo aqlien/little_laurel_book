@@ -36,6 +36,19 @@
   cursor: pointer;
 }
 
+.type-label-custom {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-top: 1px solid var(--win-dark);
+}
+
+.type-label-custom-input {
+  min-width: 120px;
+  padding: 3px 4px;
+  font: inherit;
+}
+
 .type-label-option:hover,
 .type-label-option[aria-selected="true"] {
   background: var(--win-title);

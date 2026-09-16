@@ -29,7 +29,7 @@ function initializeDatabase() {
 
   const contactColumns = database.prepare('PRAGMA table_info(contacts)').all();
   if (contactColumns.some((column) => column.name === 'phone')) {
-    database.exec('DROP TABLE IF EXISTS contact_phones; DROP TABLE IF EXISTS contact_addresses; DROP TABLE contacts;');
+    database.exec('DROP TABLE IF EXISTS contact_phones; DROP TABLE IF EXISTS contact_addresses; DROP TABLE IF EXISTS contact_dates; DROP TABLE contacts;');
   }
 
   database.exec(`
@@ -62,6 +62,24 @@ function initializeDatabase() {
       label TEXT NOT NULL DEFAULT '',
       display_order INTEGER NOT NULL,
       FOREIGN KEY (contact_id) REFERENCES contacts(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS contact_dates (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      contact_id TEXT NOT NULL,
+      important_date TEXT NOT NULL,
+      label TEXT NOT NULL DEFAULT '',
+      display_order INTEGER NOT NULL,
+      FOREIGN KEY (contact_id) REFERENCES contacts(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS contact_numbers (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      contact_id TEXT NOT NULL,
+      important_number TEXT NOT NULL,
+      label TEXT NOT NULL DEFAULT '',
+      display_order INTEGER NOT NULL,
+      FOREIGN KEY (contact_id) REFERENCES contacts(id) ON DELETE CASCADE
     )
   `);
 }
@@ -81,6 +99,16 @@ function registerDatabaseHandlers() {
     const addressRows = database.prepare(`
       SELECT contact_id, line_1, line_2, city, state, postal_code, country, label
       FROM contact_addresses
+      ORDER BY display_order
+    `).all();
+    const dateRows = database.prepare(`
+      SELECT contact_id, important_date, label
+      FROM contact_dates
+      ORDER BY display_order
+    `).all();
+    const numberRows = database.prepare(`
+      SELECT contact_id, important_number, label
+      FROM contact_numbers
       ORDER BY display_order
     `).all();
 
@@ -106,10 +134,26 @@ function registerDatabaseHandlers() {
       addressesByContact.set(address.contact_id, addresses);
     }
 
+    const datesByContact = new Map();
+    for (const date of dateRows) {
+      const dates = datesByContact.get(date.contact_id) || [];
+      dates.push({ date: date.important_date, label: date.label });
+      datesByContact.set(date.contact_id, dates);
+    }
+
+    const numbersByContact = new Map();
+    for (const number of numberRows) {
+      const numbers = numbersByContact.get(number.contact_id) || [];
+      numbers.push({ number: number.important_number, label: number.label });
+      numbersByContact.set(number.contact_id, numbers);
+    }
+
     return contactRows.map((contact) => ({
       ...contact,
       phones: phonesByContact.get(contact.id) || [],
       addresses: addressesByContact.get(contact.id) || [],
+      dates: datesByContact.get(contact.id) || [],
+      numbers: numbersByContact.get(contact.id) || [],
     }));
   });
 
@@ -119,6 +163,12 @@ function registerDatabaseHandlers() {
       : [];
     const addresses = Array.isArray(contact.addresses)
       ? contact.addresses.filter((address) => address && [address.line1, address.line2, address.city, address.state, address.postalCode, address.country].some((value) => String(value || '').trim()))
+      : [];
+    const dates = Array.isArray(contact.dates)
+      ? contact.dates.filter((date) => date && String(date.date || '').trim())
+      : [];
+    const numbers = Array.isArray(contact.numbers)
+      ? contact.numbers.filter((number) => number && String(number.number || '').trim())
       : [];
 
     if (phones.length === 0 || (phones.length > 1 && phones.some((phone) => !phone.label))) {
@@ -184,6 +234,36 @@ function registerDatabaseHandlers() {
           postalCode: String(address.postalCode || ''),
           country: String(address.country || ''),
           label: String(address.label || ''),
+          displayOrder,
+        });
+      });
+
+      database.prepare('DELETE FROM contact_dates WHERE contact_id = ?').run(String(contact.id));
+      const insertDate = database.prepare(`
+      INSERT INTO contact_dates (contact_id, important_date, label, display_order)
+      VALUES (@contactId, @date, @label, @displayOrder)
+    `);
+
+      dates.forEach((date, displayOrder) => {
+        insertDate.run({
+          contactId: String(contact.id),
+          date: String(date.date),
+          label: String(date.label || ''),
+          displayOrder,
+        });
+      });
+
+      database.prepare('DELETE FROM contact_numbers WHERE contact_id = ?').run(String(contact.id));
+      const insertNumber = database.prepare(`
+      INSERT INTO contact_numbers (contact_id, important_number, label, display_order)
+      VALUES (@contactId, @number, @label, @displayOrder)
+    `);
+
+      numbers.forEach((number, displayOrder) => {
+        insertNumber.run({
+          contactId: String(contact.id),
+          number: String(number.number),
+          label: String(number.label || ''),
           displayOrder,
         });
       });

@@ -39,7 +39,9 @@
 }
 
 .phone-list,
-.address-list {
+.address-list,
+.date-list,
+.number-list {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -52,6 +54,18 @@
 }
 
 .phone-row {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+}
+
+.date-row {
+  display: grid;
+  gap: 6px;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+}
+
+.number-row {
+  display: grid;
+  gap: 6px;
   grid-template-columns: minmax(0, 1fr) auto auto;
 }
 

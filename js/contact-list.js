@@ -3,7 +3,9 @@ export function filterContacts(contacts, searchTerm) {
   return contacts.filter((contact) => {
     const phoneText = (contact.phones || []).map((phone) => `${phone.number} ${phone.label}`).join(" ");
     const addressText = (contact.addresses || []).map((address) => `${formatAddress(address)} ${address.label}`).join(" ");
-    return `${contact.name} ${phoneText} ${addressText} ${contact.email} ${contact.notes}`.toLowerCase().includes(term);
+    const dateText = (contact.dates || []).map((date) => `${date.date} ${date.label}`).join(" ");
+    const numberText = (contact.numbers || []).map((number) => `${number.number} ${number.label}`).join(" ");
+    return `${contact.name} ${phoneText} ${addressText} ${dateText} ${numberText} ${contact.email} ${contact.notes}`.toLowerCase().includes(term);
   });
 }
 
@@ -37,6 +39,12 @@ function createContactCard(contact) {
   });
   (contact.addresses || []).forEach((address) => {
     appendText(card, "div", "contact-meta", `Address${address.label ? ` (${address.label})` : ""}: ${formatAddress(address)}`);
+  });
+  (contact.dates || []).forEach((date) => {
+    appendText(card, "div", "contact-meta", `Date${date.label ? ` (${date.label})` : ""}: ${date.date}`);
+  });
+  (contact.numbers || []).forEach((number) => {
+    appendText(card, "div", "contact-meta", `Number${number.label ? ` (${number.label})` : ""}: ${number.number}`);
   });
   appendText(card, "div", "contact-meta", `Email: ${contact.email || "—"}`);
   appendText(card, "div", "contact-meta", `Notes: ${contact.notes || "—"}`);
