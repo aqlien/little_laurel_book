@@ -20,6 +20,7 @@ export function addNumberRow(numberList, number = { number: "", label: "" }) {
 
   const labelPicker = createLabelPicker({
     options: numberLabels,
+    type: "number",
     value: number.label,
     ariaLabel: "Important number label",
     allowCustom: true,

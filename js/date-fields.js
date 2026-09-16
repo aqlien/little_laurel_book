@@ -19,6 +19,7 @@ export function addDateRow(dateList, date = { date: "", label: "" }) {
 
   const labelPicker = createLabelPicker({
     options: dateLabels,
+    type: "date",
     value: date.label,
     ariaLabel: "Important date label",
     allowCustom: true,

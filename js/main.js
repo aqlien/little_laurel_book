@@ -97,10 +97,10 @@ cancelBtn.addEventListener("click", resetForm);
 searchInput.addEventListener("input", renderContacts);
 contactForm.addEventListener("submit", saveContactForm);
 contactList.addEventListener("click", handleListClick);
-attachLabelPickerEvents(phoneList, phoneLabels);
-attachLabelPickerEvents(addressList, addressLabels);
-attachLabelPickerEvents(dateList, dateLabels);
-attachLabelPickerEvents(numberList, numberLabels);
+attachLabelPickerEvents(phoneList, phoneLabels, "phone");
+attachLabelPickerEvents(addressList, addressLabels, "address");
+attachLabelPickerEvents(dateList, dateLabels, "date");
+attachLabelPickerEvents(numberList, numberLabels, "number");
 phoneList.addEventListener("click", (event) => {
   if (event.target.closest(".remove-phone")) event.target.closest(".phone-row").remove();
 });

@@ -11,7 +11,7 @@ export function addPhoneRow(phoneList, phone = { number: "", label: "" }) {
   numberInput.placeholder = "Phone number";
   numberInput.value = phone.number;
 
-  const labelPicker = createLabelPicker({ options: phoneLabels, value: phone.label, ariaLabel: "Phone label" });
+  const labelPicker = createLabelPicker({ options: phoneLabels, type: "phone", value: phone.label, ariaLabel: "Phone label" });
   row.append(numberInput, labelPicker, createRemoveButton());
   phoneList.appendChild(row);
 }

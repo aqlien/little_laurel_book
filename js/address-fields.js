@@ -24,7 +24,7 @@ export function addAddressRow(addressList, address = {}) {
     fieldsGrid.appendChild(input);
   });
 
-  const labelPicker = createLabelPicker({ options: addressLabels, value: address.label, ariaLabel: "Address label" });
+  const labelPicker = createLabelPicker({ options: addressLabels, type: "address", value: address.label, ariaLabel: "Address label" });
   row.append(fieldsGrid, labelPicker, createRemoveButton());
   addressList.appendChild(row);
 }
